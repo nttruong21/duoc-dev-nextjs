@@ -1,27 +1,14 @@
 import { cookies } from "next/headers";
-import envConfig from "@/configs/environment";
-import ClientComponent from "./components/client-component";
 
-interface SuccessResponse {
-  data: {
-    id: number;
-    name: string;
-    email: string;
-  };
-  message: string;
-}
+import accountServices from "@/services/account";
+import ClientComponent from "./components/client-component";
 
 const Home = async () => {
   const cookieStore = cookies();
 
-  const response = await fetch(
-    `${envConfig.NEXT_PUBLIC_BASE_API_ENDPOINT}/account/me`,
-    {
-      headers: {
-        Authorization: `Bearer ${cookieStore.get("token")?.value}`,
-      },
-    }
-  ).then((response) => response.json() as unknown as SuccessResponse);
+  const response = await accountServices.getProfile(
+    cookieStore.get("token")?.value
+  );
 
   return (
     <div className="p-6">

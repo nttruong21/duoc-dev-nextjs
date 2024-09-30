@@ -27,5 +27,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [...authRoutes, ...privateRoutes],
+  matcher: ["/auth/sign-in", "/auth/sign-up", "/profile"],
 };

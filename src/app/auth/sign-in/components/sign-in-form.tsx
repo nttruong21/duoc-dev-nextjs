@@ -15,35 +15,18 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import envConfig from "@/configs/environment";
 import { useRouter } from "next/navigation";
-import { useAppContext } from "@/app/components/app-provider";
+import { HttpError } from "@/lib/http";
+import authServices from "@/services/auth";
+import clientSession from "@/services/clientSession";
 
-interface ErrorResponse {
+interface MutationErrorResponse {
   errors: Array<{
     field: string;
     message: string;
   }>;
   message: string;
   statusCode: number;
-}
-
-interface TransformedApiError {
-  status: number;
-  data: ErrorResponse;
-}
-
-interface SuccessResponse {
-  data: {
-    account: {
-      email: string;
-      id: number;
-      name: string;
-    };
-    expiresAt: string;
-    token: string;
-  };
-  message: string;
 }
 
 const formSchema = z
@@ -57,7 +40,6 @@ type Form = z.infer<typeof formSchema>;
 
 const SignInForm = () => {
   const router = useRouter();
-  const { setToken } = useAppContext();
 
   const form = useForm<Form>({
     resolver: zodResolver(formSchema),
@@ -70,59 +52,24 @@ const SignInForm = () => {
   const handleSubmit: SubmitHandler<Form> = async (values) => {
     try {
       // Mutate sign in
-      const response = await fetch(
-        `${envConfig.NEXT_PUBLIC_BASE_API_ENDPOINT}/auth/login`,
-        {
-          method: "POST",
-          body: JSON.stringify(values),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      ).then(async (response) => {
-        const apiResponseData = await response.json();
-
-        if (response.ok) {
-          return apiResponseData as SuccessResponse;
-        }
-        throw {
-          status: response.status,
-          data: apiResponseData as ErrorResponse,
-        };
-      });
+      const response = await authServices.signIn(values);
 
       // Set cookie token for Next server
-      await fetch("/api/auth", {
-        method: "POST",
-        body: JSON.stringify({
-          token: response.data.token,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }).then(async (response) => {
-        const apiResponseData = await response.json();
-
-        if (response.ok) {
-          return apiResponseData as SuccessResponse;
-        }
-        throw {
-          status: response.status,
-          data: apiResponseData as ErrorResponse,
-        };
+      await authServices.setTokenCookie({
+        token: response.data.token,
       });
 
       // Set app context token
-      setToken(response.data.token);
+      clientSession.token = response.data.token;
 
       toast.success("Success", {
         description: "Sign in successfully",
       });
       router.push("/profile");
     } catch (error) {
-      const transformedError = error as unknown as TransformedApiError;
-      if (transformedError.status === 422) {
-        transformedError.data.errors.forEach((error) => {
+      const httpError = error as unknown as HttpError<MutationErrorResponse>;
+      if (httpError.status === 422) {
+        httpError.data.errors.forEach((error) => {
           form.setError(error.field as keyof Form, {
             type: "server",
             message: error.message,
@@ -130,7 +77,7 @@ const SignInForm = () => {
         });
       }
       toast.error("Error", {
-        description: transformedError.data.message,
+        description: httpError.data.message,
       });
     }
   };

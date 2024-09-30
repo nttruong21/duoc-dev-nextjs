@@ -1,37 +1,23 @@
 "use client";
 
-import {
-  createContext,
-  FC,
-  PropsWithChildren,
-  useContext,
-  useState,
-} from "react";
+import { FC, PropsWithChildren, useState } from "react";
 
-const Context = createContext({
-  token: "",
-  setToken: (value: string) => {},
-});
+import { isServerSide } from "@/lib/utils";
+import clientSession from "@/services/clientSession";
 
 const AppProvider: FC<
   PropsWithChildren & {
     initialToken?: string;
   }
-> = ({ initialToken = "", children }) => {
-  const [token, setToken] = useState(initialToken);
+> = ({ children, initialToken }) => {
+  useState(() => {
+    if (!initialToken || isServerSide()) {
+      return;
+    }
+    clientSession.token = initialToken;
+  });
 
-  return (
-    <Context.Provider
-      value={{
-        token,
-        setToken,
-      }}
-    >
-      {children}
-    </Context.Provider>
-  );
+  return children;
 };
-
-export const useAppContext = () => useContext(Context);
 
 export default AppProvider;

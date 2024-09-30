@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
-import { cookies } from "next/headers";
 import AppProvider from "./components/app-provider";
 import "./globals.css";
+import { cookies } from "next/headers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,6 +25,7 @@ export default function RootLayout({
         <AppProvider initialToken={cookieStore.get("token")?.value}>
           <main>{children}</main>
         </AppProvider>
+
         <Toaster richColors theme="light" />
       </body>
     </html>
