@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 
-import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -14,20 +13,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { useRouter } from "next/navigation";
-import { HttpError } from "@/lib/http";
 import authServices from "@/services/auth";
+import { useRouter } from "next/navigation";
+import { handleApiError } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import clientSession from "@/services/clientSession";
-
-interface MutationErrorResponse {
-  errors: Array<{
-    field: string;
-    message: string;
-  }>;
-  message: string;
-  statusCode: number;
-}
+import { useState } from "react";
 
 const formSchema = z
   .object({
@@ -49,8 +41,12 @@ const SignInForm = () => {
     },
   });
 
+  const [isPending, setIsPending] = useState(false);
+
   const handleSubmit: SubmitHandler<Form> = async (values) => {
     try {
+      setIsPending(true);
+
       // Mutate sign in
       const response = await authServices.signIn(values);
 
@@ -65,20 +61,15 @@ const SignInForm = () => {
       toast.success("Success", {
         description: "Sign in successfully",
       });
+
       router.push("/profile");
     } catch (error) {
-      const httpError = error as unknown as HttpError<MutationErrorResponse>;
-      if (httpError.status === 422) {
-        httpError.data.errors.forEach((error) => {
-          form.setError(error.field as keyof Form, {
-            type: "server",
-            message: error.message,
-          });
-        });
-      }
-      toast.error("Error", {
-        description: httpError.data.message,
+      handleApiError({
+        error,
+        setError: form.setError,
       });
+    } finally {
+      setIsPending(false);
     }
   };
 
@@ -113,7 +104,7 @@ const SignInForm = () => {
           )}
         />
 
-        <Button type="submit" className="w-full">
+        <Button type="submit" className="w-full" loading={isPending}>
           Submit
         </Button>
       </form>

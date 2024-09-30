@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 
 import accountServices from "@/services/account";
+
 import ClientComponent from "./components/client-component";
 
 const Home = async () => {

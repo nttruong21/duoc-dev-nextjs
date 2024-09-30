@@ -19,12 +19,12 @@ export async function POST(request: Request) {
       data: {
         token,
       },
-      message: "Set cookie token successfully",
+      message: "Set token cookie successfully",
     },
     {
       status: 200,
       headers: {
-        "Set-Cookie": `token=${token}; Path=/; Secure; HttpOnly`,
+        "Set-Cookie": `token=${token}; Path=/; Secure; HttpOnly;`,
       },
     }
   );

@@ -14,14 +14,31 @@ interface SignInMutationResponse {
 }
 
 const authServices = {
-  signIn: async (body: { email: string; password: string }) =>
-    await http.post<SignInMutationResponse>("/auth/login", {
+  signIn: (body: { email: string; password: string }) =>
+    http.post<SignInMutationResponse>("/auth/login", {
       body: JSON.stringify(body),
     }),
+  signUp: (body: {
+    name: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+  }) =>
+    http.post<SignInMutationResponse>("/auth/register", {
+      body: JSON.stringify(body),
+    }),
+  signOut: () =>
+    http.post("/auth/logout", {
+      body: JSON.stringify({}),
+    }),
   setTokenCookie: (body: { token: string }) =>
-    http.post("/api/auth", {
+    http.post("/api/auth/set-token-cookie", {
       baseUrl: "",
       body: JSON.stringify(body),
+    }),
+  removeTokenCookie: () =>
+    http.post("/api/auth/remove-token-cookie", {
+      baseUrl: "",
     }),
 };
 

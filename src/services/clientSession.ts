@@ -1,17 +1,13 @@
 import { isServerSide } from "@/lib/utils";
 
 class ClientSession {
-  private _token: string;
-
-  constructor(token?: string) {
-    this._token = token ?? "";
-  }
+  private _token?: string;
 
   public get token(): typeof this._token {
     return this._token;
   }
 
-  public set token(value: string) {
+  public set token(value: string | undefined) {
     if (isServerSide()) {
       throw new Error("Can not set token on server side");
     }

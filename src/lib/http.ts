@@ -1,10 +1,22 @@
 import envConfig from "@/configs/environment";
+import authServices from "@/services/auth";
 import clientSession from "@/services/clientSession";
 
 export interface HttpError<Data = unknown> extends Error {
   status: number;
-  data: Data;
+  data: Data & {
+    message: string;
+  };
 }
+
+export type AuthHttpError = HttpError<{
+  errors: Array<{
+    field: string;
+    message: string;
+  }>;
+  message: string;
+  statusCode: number;
+}>;
 
 export type HttpOptions = RequestInit & {
   baseUrl?: string;
@@ -29,16 +41,19 @@ const request = async <HttpResponse>(url: string, options?: HttpOptions) => {
 
   const httpResponse = (await fetchResponse.json()) as HttpResponse;
 
+  console.log(fetchResponse);
+
+  // Error
   if (!fetchResponse.ok) {
-    const error: HttpError = {
+    throw {
       name: "Http error",
       message: "An error occurred when execute the http request",
       status: fetchResponse.status,
       data: httpResponse,
-    };
-    throw error;
+    } as HttpError;
   }
 
+  // Success
   return httpResponse;
 };
 

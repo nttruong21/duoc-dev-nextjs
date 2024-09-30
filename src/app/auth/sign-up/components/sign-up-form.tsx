@@ -1,7 +1,8 @@
 "use client";
 
 import { z } from "zod";
-
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 
@@ -14,8 +15,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import authServices from "@/services/auth";
+import { handleApiError } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
-import envConfig from "@/configs/environment";
+import clientSession from "@/services/clientSession";
 
 const formSchema = z
   .object({
@@ -38,6 +41,8 @@ const formSchema = z
 type Form = z.infer<typeof formSchema>;
 
 const SignUpForm = () => {
+  const router = useRouter();
+
   const form = useForm<Form>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -50,20 +55,26 @@ const SignUpForm = () => {
 
   const handleSubmit: SubmitHandler<Form> = async (values) => {
     try {
-      const response = await fetch(
-        `${envConfig.NEXT_PUBLIC_BASE_API_ENDPOINT}/auth/register`,
-        {
-          method: "POST",
-          body: JSON.stringify(values),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      ).then((data) => data.json());
+      const response = await authServices.signUp(values);
 
-      console.log(response);
+      // Set cookie token for Next server
+      await authServices.setTokenCookie({
+        token: response.data.token,
+      });
+
+      // Set app context token
+      clientSession.token = response.data.token;
+
+      toast.success("Success", {
+        description: "Sign in successfully",
+      });
+
+      router.push("/profile");
     } catch (error) {
-      console.error("Sign up failure", error);
+      handleApiError({
+        error,
+        setError: form.setError,
+      });
     }
   };
 
