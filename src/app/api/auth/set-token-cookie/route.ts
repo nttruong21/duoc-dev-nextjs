@@ -1,18 +1,33 @@
+import { cookies } from "next/headers";
+
 export async function POST(request: Request) {
-  const { token } = (await request.json()) as {
+  const cookieStore = cookies();
+
+  const { token, expiresAt } = (await request.json()) as {
     token: string;
+    expiresAt: string;
   };
 
   if (!token) {
     return Response.json(
       {
-        message: "Token not found",
+        message: "Token is not found",
       },
       {
-        status: 400,
+        status: 404,
       }
     );
   }
+
+  cookieStore.set({
+    name: "token",
+    value: token,
+    path: "/",
+    secure: true,
+    httpOnly: true,
+    sameSite: "lax",
+    expires: new Date(expiresAt),
+  });
 
   return Response.json(
     {
@@ -23,9 +38,6 @@ export async function POST(request: Request) {
     },
     {
       status: 200,
-      headers: {
-        "Set-Cookie": `token=${token}; Path=/; Secure; HttpOnly;`,
-      },
     }
   );
 }

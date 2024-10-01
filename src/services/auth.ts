@@ -31,14 +31,15 @@ const authServices = {
     http.post("/auth/logout", {
       body: JSON.stringify({}),
     }),
-  setTokenCookie: (body: { token: string }) =>
+  setTokenCookie: (body: { token: string; expiresAt: string }) =>
     http.post("/api/auth/set-token-cookie", {
       baseUrl: "",
       body: JSON.stringify(body),
     }),
-  removeTokenCookie: () =>
-    http.post("/api/auth/remove-token-cookie", {
+  removeTokenCookie: (signal?: AbortSignal) =>
+    http.delete("/api/auth/remove-token-cookie", {
       baseUrl: "",
+      signal,
     }),
 };
 

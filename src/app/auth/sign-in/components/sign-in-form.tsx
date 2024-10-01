@@ -53,6 +53,7 @@ const SignInForm = () => {
       // Set cookie token for Next server
       await authServices.setTokenCookie({
         token: response.data.token,
+        expiresAt: response.data.expiresAt,
       });
 
       // Set app context token

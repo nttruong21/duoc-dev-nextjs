@@ -1,29 +1,63 @@
 import envConfig from "@/configs/environment";
-import authServices from "@/services/auth";
 import clientSession from "@/services/clientSession";
+import { isServerSide } from "./utils";
+import { redirect } from "next/navigation";
 
-export interface HttpError<Data = unknown> extends Error {
-  status: number;
-  data: Data & {
+// General http error type
+export class HttpError<
+  Data = {
     message: string;
-  };
+    [key: string]: unknown;
+  }
+> extends Error {
+  status: number;
+  data: Data;
+  constructor({
+    status,
+    message = "Http error",
+    data,
+  }: {
+    status: number;
+    message?: string;
+    data: Data;
+  }) {
+    super(message);
+    this.status = status;
+    this.data = data;
+  }
 }
 
-export type AuthHttpError = HttpError<{
+// 422 error type
+export interface HttpUnprocessableEntityErrorData {
   errors: Array<{
     field: string;
     message: string;
   }>;
   message: string;
   statusCode: number;
-}>;
+}
+
+export class HttpUnprocessableEntityError extends HttpError<HttpUnprocessableEntityErrorData> {
+  constructor({ data }: { data: HttpUnprocessableEntityErrorData }) {
+    super({
+      status: 422,
+      message: "Unprocessable entity error",
+      data,
+    });
+  }
+}
 
 export type HttpOptions = RequestInit & {
   baseUrl?: string;
 };
 
+let isHttpUnauthorizeError = false;
+
 // Request
-const request = async <HttpResponse>(url: string, options?: HttpOptions) => {
+const request = async <HttpResponse>(
+  url: string,
+  options?: HttpOptions
+): Promise<HttpResponse | undefined> => {
   const baseUrl = options?.baseUrl ?? envConfig.NEXT_PUBLIC_BASE_API_ENDPOINT;
   const fullUrl = `${baseUrl}${url}`;
   const baseHeaders = {
@@ -39,22 +73,56 @@ const request = async <HttpResponse>(url: string, options?: HttpOptions) => {
     ...options,
   });
 
-  const httpResponse = (await fetchResponse.json()) as HttpResponse;
-
-  console.log(fetchResponse);
-
-  // Error
-  if (!fetchResponse.ok) {
-    throw {
-      name: "Http error",
-      message: "An error occurred when execute the http request",
-      status: fetchResponse.status,
-      data: httpResponse,
-    } as HttpError;
-  }
+  const httpResponse = await fetchResponse.json();
 
   // Success
-  return httpResponse;
+  if (fetchResponse.ok) {
+    return httpResponse as HttpResponse;
+  }
+
+  // Error
+  // 422
+  if (fetchResponse.status === 422) {
+    throw new HttpUnprocessableEntityError({
+      data: httpResponse as HttpUnprocessableEntityErrorData,
+    });
+  }
+
+  // 401
+  if (fetchResponse.status === 401) {
+    console.log(">>> Token expired ...");
+    if (isServerSide()) {
+      console.log("Server side ...");
+
+      const token = (options?.headers as any)?.Authorization?.split(
+        "Bearer"
+      )[1]?.trim();
+
+      redirect(`/auth/sign-out?token=${token}`);
+    } else {
+      console.log("Client side ...");
+
+      if (isHttpUnauthorizeError) {
+        return;
+      }
+
+      isHttpUnauthorizeError = true;
+      await fetch("/api/auth/remove-token-cookie", {
+        method: "DELETE",
+      });
+      clientSession.token = undefined;
+      isHttpUnauthorizeError = false;
+      location.href = "/";
+    }
+
+    return;
+  }
+
+  // Others
+  throw new HttpError({
+    status: fetchResponse.status,
+    data: httpResponse,
+  });
 };
 
 // Http
