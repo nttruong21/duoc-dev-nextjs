@@ -57,7 +57,7 @@ let isHttpUnauthorizeError = false;
 const request = async <HttpResponse>(
   url: string,
   options?: HttpOptions
-): Promise<HttpResponse | undefined> => {
+): Promise<HttpResponse> => {
   const baseUrl = options?.baseUrl ?? envConfig.NEXT_PUBLIC_BASE_API_ENDPOINT;
   const fullUrl = `${baseUrl}${url}`;
   const baseHeaders = {
@@ -102,20 +102,16 @@ const request = async <HttpResponse>(
     } else {
       console.log("Client side ...");
 
-      if (isHttpUnauthorizeError) {
-        return;
+      if (!isHttpUnauthorizeError) {
+        isHttpUnauthorizeError = true;
+        await fetch("/api/auth/remove-token-cookie", {
+          method: "DELETE",
+        });
+        clientSession.token = undefined;
+        isHttpUnauthorizeError = false;
+        location.href = "/";
       }
-
-      isHttpUnauthorizeError = true;
-      await fetch("/api/auth/remove-token-cookie", {
-        method: "DELETE",
-      });
-      clientSession.token = undefined;
-      isHttpUnauthorizeError = false;
-      location.href = "/";
     }
-
-    return;
   }
 
   // Others

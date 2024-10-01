@@ -14,7 +14,7 @@ const Home = async () => {
   return (
     <div className="p-6">
       <div>Home</div>
-      <div>Fetch data from server: {response?.data.name}</div>
+      <div>Fetch data from server: {response.data.name}</div>
       <ClientComponent />
     </div>
   );
