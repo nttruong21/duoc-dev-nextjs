@@ -16,7 +16,7 @@ const accountServices = {
       token
         ? {
             headers: {
-              Authorization: `Bearer ${token}`,
+              Cookie: `sessionToken=${token}`,
             },
           }
         : undefined

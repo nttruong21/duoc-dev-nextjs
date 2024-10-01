@@ -18,7 +18,6 @@ import {
 import authServices from "@/services/auth";
 import { handleApiError } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
-import clientSession from "@/services/clientSession";
 
 const formSchema = z
   .object({
@@ -62,9 +61,6 @@ const SignUpForm = () => {
         token: response.data.token,
         expiresAt: response.data.expiresAt,
       });
-
-      // Set app context token
-      clientSession.token = response.data.token;
 
       toast.success("Success", {
         description: "Sign in successfully",

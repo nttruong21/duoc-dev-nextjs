@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
-import AppProvider from "./components/app-provider";
 import "./globals.css";
 import { cookies } from "next/headers";
 
@@ -22,10 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AppProvider initialToken={cookieStore.get("token")?.value}>
-          <main>{children}</main>
-        </AppProvider>
-
+        <main>{children}</main>
         <Toaster richColors theme="light" />
       </body>
     </html>

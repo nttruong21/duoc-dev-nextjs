@@ -18,7 +18,6 @@ import { useRouter } from "next/navigation";
 import { handleApiError } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import clientSession from "@/services/clientSession";
 import { useState } from "react";
 
 const formSchema = z
@@ -55,9 +54,6 @@ const SignInForm = () => {
         token: response.data.token,
         expiresAt: response.data.expiresAt,
       });
-
-      // Set app context token
-      clientSession.token = response.data.token;
 
       toast.success("Success", {
         description: "Sign in successfully",

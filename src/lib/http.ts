@@ -1,7 +1,7 @@
-import envConfig from "@/configs/environment";
-import clientSession from "@/services/clientSession";
-import { isServerSide } from "./utils";
 import { redirect } from "next/navigation";
+
+import { isServerSide } from "@/lib/utils";
+import envConfig from "@/configs/environment";
 
 // General http error type
 export class HttpError<
@@ -51,7 +51,7 @@ export type HttpOptions = RequestInit & {
   baseUrl?: string;
 };
 
-let isHttpUnauthorizeError = false;
+let isClientSideHttpUnauthorizeError = false;
 
 // Request
 const request = async <HttpResponse>(
@@ -60,9 +60,8 @@ const request = async <HttpResponse>(
 ): Promise<HttpResponse> => {
   const baseUrl = options?.baseUrl ?? envConfig.NEXT_PUBLIC_BASE_API_ENDPOINT;
   const fullUrl = `${baseUrl}${url}`;
-  const baseHeaders = {
+  const baseHeaders: HeadersInit = {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${clientSession.token}`,
   };
 
   const fetchResponse = await fetch(fullUrl, {
@@ -70,6 +69,7 @@ const request = async <HttpResponse>(
       ...baseHeaders,
       ...options?.headers,
     },
+    credentials: "include",
     ...options,
   });
 
@@ -102,14 +102,13 @@ const request = async <HttpResponse>(
     } else {
       console.log("Client side ...");
 
-      if (!isHttpUnauthorizeError) {
-        isHttpUnauthorizeError = true;
-        await fetch("/api/auth/remove-token-cookie", {
-          method: "DELETE",
-        });
-        clientSession.token = undefined;
-        isHttpUnauthorizeError = false;
-        location.href = "/";
+      if (!isClientSideHttpUnauthorizeError) {
+        // isClientSideHttpUnauthorizeError = true;
+        // await fetch("/api/auth/remove-token-cookie", {
+        //   method: "DELETE",
+        // });
+        // isClientSideHttpUnauthorizeError = false;
+        // location.href = "/";
       }
     }
   }

@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import authServices from "@/services/auth";
-import clientSession from "@/services/clientSession";
 import CircleLoading from "@/components/app/circle-loading";
 
 const SignOut = () => {
@@ -14,11 +13,10 @@ const SignOut = () => {
 
   useEffect(() => {
     const abortController = new AbortController();
-    if (token === clientSession.token) {
-      authServices.removeTokenCookie(abortController.signal).then(() => {
-        router.push("/");
-      });
-    }
+    authServices.removeTokenCookie(abortController.signal).then(() => {
+      router.push("/");
+    });
+
     return () => {
       abortController.abort("Cancel duplicate request");
     };

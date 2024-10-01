@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import authServices from "@/services/auth";
 import { handleApiError } from "@/lib/utils";
 import { toast } from "sonner";
-import clientSession from "@/services/clientSession";
 import { useRouter } from "next/navigation";
 
 const ClientComponent = () => {
@@ -16,6 +15,7 @@ const ClientComponent = () => {
   const [name, setName] = useState<string>();
 
   useEffect(() => {
+    console.log(document.cookie);
     accountServices.getProfile().then((response) => {
       setName(response.data.name);
     });
@@ -25,11 +25,8 @@ const ClientComponent = () => {
     try {
       await authServices.signOut();
 
-      // Set cookie token for Next server
+      // Remove cookie token for Next server
       await authServices.removeTokenCookie();
-
-      // Set app context token
-      clientSession.token = "";
 
       toast.success("Success", {
         description: "Sign in successfully",

@@ -4,7 +4,7 @@ import accountServices from "@/services/account";
 
 import ClientComponent from "./components/client-component";
 
-const Home = async () => {
+const Profile = async () => {
   const cookieStore = cookies();
 
   const response = await accountServices.getProfile(
@@ -13,11 +13,10 @@ const Home = async () => {
 
   return (
     <div className="p-6">
-      <div>Home</div>
       <div>Fetch data from server: {response.data.name}</div>
       <ClientComponent />
     </div>
   );
 };
 
-export default Home;
+export default Profile;
