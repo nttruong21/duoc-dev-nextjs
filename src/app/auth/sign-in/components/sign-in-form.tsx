@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import clientSession from "@/services/clientSession";
 import { useState } from "react";
+import { useAppContext } from "@/app/components/app-provider";
 
 const formSchema = z
   .object({
@@ -32,6 +33,8 @@ type Form = z.infer<typeof formSchema>;
 
 const SignInForm = () => {
   const router = useRouter();
+
+  const { setIsLoggedIn } = useAppContext();
 
   const form = useForm<Form>({
     resolver: zodResolver(formSchema),
@@ -56,8 +59,11 @@ const SignInForm = () => {
         expiresAt: response.data.expiresAt,
       });
 
-      // Set app context token
+      // Set client session token
       clientSession.token = response.data.token;
+
+      // Set app context
+      setIsLoggedIn(true);
 
       toast.success("Success", {
         description: "Sign in successfully",

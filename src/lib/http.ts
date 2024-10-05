@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { isServerSide } from "@/lib/utils";
 import envConfig from "@/configs/environment";
 import clientSession from "@/services/clientSession";
+import { useAppContext } from "@/app/components/app-provider";
 
 // General http error type
 export class HttpError<
@@ -109,7 +110,7 @@ const request = async <HttpResponse>(
         });
         clientSession.token = undefined;
         isHttpUnauthorizeError = false;
-        location.href = "/";
+        // location.href = "/";
       }
     }
   }

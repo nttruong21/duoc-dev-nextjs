@@ -4,10 +4,10 @@ import { Inter } from "next/font/google";
 
 import { Toaster } from "@/components/ui/sonner";
 
-import Header from "./components/header";
 import AppProvider from "./components/app-provider";
 
 import "./globals.css";
+import Header from "./components/header";
 
 const inter = Inter({ subsets: ["latin"] });
 

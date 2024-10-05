@@ -1,16 +1,18 @@
+"use client";
+
 import Link from "next/link";
-import { cookies } from "next/headers";
+import { useAppContext } from "./app-provider";
+import clientSession from "@/services/clientSession";
 
 const Header = () => {
-  const cookieStore = cookies();
-  const token = cookieStore.get("token");
+  const { isLoggedIn } = useAppContext();
 
   return (
     <header className="border-b border-neutral-300">
       <div className="container h-14 flex items-center justify-between gap-4">
         <div className="space-x-4">
           <Link href="/">Home</Link>
-          {token && (
+          {isLoggedIn && (
             <>
               <Link href="/profile">Profile</Link>
               <Link href="/products">Products</Link>
@@ -18,8 +20,10 @@ const Header = () => {
           )}
         </div>
 
-        {token ? (
-          <Link href={`/auth/sign-out?token=${token.value}`}>Sign out</Link>
+        {isLoggedIn ? (
+          <Link href={`/auth/sign-out?token=${clientSession.token}`}>
+            Sign out
+          </Link>
         ) : (
           <div className="space-x-4">
             <Link href="/auth/sign-in">Sign in</Link>
