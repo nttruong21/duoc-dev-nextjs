@@ -20,17 +20,33 @@ export function handleApiError({
   error: unknown;
   setError?: UseFormSetError<any>;
 }) {
-  const httpError = error as unknown as HttpError;
-  if (httpError instanceof HttpUnprocessableEntityError && setError) {
-    httpError.data.errors.forEach((error) => {
+  console.log(error);
+
+  if (!(error instanceof HttpError)) {
+    toast.error("Error", {
+      description: "Có lỗi xảy ra, vui lòng thử lại",
+    });
+    return;
+  }
+
+  // error is HttpError instance
+  // Canceled error
+  if (error.status === 499) {
+    return;
+  }
+
+  // Other errors
+  if (error instanceof HttpUnprocessableEntityError && setError) {
+    error.data.errors.forEach((error) => {
       setError(error.field, {
         type: "server",
         message: error.message,
       });
     });
-  } else {
-    toast.error("Error", {
-      description: httpError.data.message,
-    });
+    return;
   }
+
+  toast.error("Error", {
+    description: error.data.message,
+  });
 }

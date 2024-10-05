@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
+import { NextRequest } from "next/server";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   const cookieStore = cookies();
 
   const { token, expiresAt } = (await request.json()) as {
