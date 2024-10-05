@@ -5,14 +5,17 @@ const Header = () => {
   const cookieStore = cookies();
   const token = cookieStore.get("token");
 
-  console.log(">>> token:", token?.value);
-
   return (
     <header className="border-b border-neutral-300">
       <div className="container h-14 flex items-center justify-between gap-4">
         <div className="space-x-4">
           <Link href="/">Home</Link>
-          {token && <Link href="/profile">Profile</Link>}
+          {token && (
+            <>
+              <Link href="/profile">Profile</Link>
+              <Link href="/products">Products</Link>
+            </>
+          )}
         </div>
 
         {token ? (

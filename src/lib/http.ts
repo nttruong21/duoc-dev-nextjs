@@ -1,7 +1,7 @@
+import { redirect } from "next/navigation";
+import { isServerSide } from "@/lib/utils";
 import envConfig from "@/configs/environment";
 import clientSession from "@/services/clientSession";
-import { isServerSide } from "./utils";
-import { redirect } from "next/navigation";
 
 // General http error type
 export class HttpError<
@@ -66,11 +66,11 @@ const request = async <HttpResponse>(
   };
 
   const fetchResponse = await fetch(fullUrl, {
+    ...options,
     headers: {
       ...baseHeaders,
       ...options?.headers,
     },
-    ...options,
   });
 
   const httpResponse = await fetchResponse.json();

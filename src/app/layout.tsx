@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { Inter } from "next/font/google";
 
 import { Toaster } from "@/components/ui/sonner";
 
 import Header from "./components/header";
 import AppProvider from "./components/app-provider";
-import { cookies } from "next/headers";
+
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -25,10 +26,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Header />
-        <main className="container py-6">{children}</main>
         <AppProvider initialToken={cookieStore.get("token")?.value}>
-          <main>{children}</main>
+          <Header />
+          <main className="container py-6">{children}</main>
         </AppProvider>
 
         <Toaster richColors theme="light" />

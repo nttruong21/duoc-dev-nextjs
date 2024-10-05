@@ -2,9 +2,10 @@ import { cookies } from "next/headers";
 
 import accountServices from "@/services/account";
 
+import ProfileForm from "./components/profile-form";
 import ClientComponent from "./components/client-component";
 
-const Home = async () => {
+const Profile = async () => {
   const cookieStore = cookies();
 
   const response = await accountServices.getProfile(
@@ -12,11 +13,12 @@ const Home = async () => {
   );
 
   return (
-    <div>
+    <div className="space-y-4">
       <div>Fetch data from server: {response.data.name}</div>
       <ClientComponent />
+      <ProfileForm name={response.data.name} />
     </div>
   );
 };
 
-export default Home;
+export default Profile;

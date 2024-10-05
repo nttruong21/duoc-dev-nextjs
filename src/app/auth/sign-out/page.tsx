@@ -30,12 +30,13 @@ const SignOut = () => {
 
         // Remove cookie token for Next server
         await authServices.removeTokenCookie(abortController.signal);
+        clientSession.token = undefined;
 
         toast.success("Success", {
           description: "Sign out successfully",
         });
 
-        router.replace("/");
+        router.push("/");
       } catch (error) {
         handleApiError({
           error,

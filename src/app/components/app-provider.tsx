@@ -4,6 +4,7 @@ import { FC, PropsWithChildren, useState } from "react";
 
 import { isServerSide } from "@/lib/utils";
 import clientSession from "@/services/clientSession";
+import Header from "./header";
 
 const AppProvider: FC<
   PropsWithChildren & {

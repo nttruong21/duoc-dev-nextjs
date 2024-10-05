@@ -21,6 +21,21 @@ const accountServices = {
           }
         : undefined
     ),
+  updateProfile: ({
+    token,
+    data,
+  }: {
+    token?: string;
+    data: { name: string };
+  }) =>
+    http.put("/account/me", {
+      body: JSON.stringify(data),
+      headers: token
+        ? {
+            Authorization: `Bearer ${token}`,
+          }
+        : undefined,
+    }),
 };
 
 export default accountServices;
