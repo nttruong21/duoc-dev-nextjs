@@ -27,7 +27,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AppProvider initialToken={cookieStore.get("token")?.value}>
-          <Header />
+          <Header initialToken={cookieStore.get("token")?.value} />
           <main className="container py-6">{children}</main>
         </AppProvider>
 

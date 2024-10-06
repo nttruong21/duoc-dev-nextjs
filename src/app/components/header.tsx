@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useAppContext } from "./app-provider";
 import clientSession from "@/services/clientSession";
+import { FC } from "react";
 
-const Header = () => {
+const Header: FC<{ initialToken?: string }> = ({ initialToken }) => {
   const { isLoggedIn } = useAppContext();
 
   return (
@@ -21,7 +22,9 @@ const Header = () => {
         </div>
 
         {isLoggedIn ? (
-          <Link href={`/auth/sign-out?token=${clientSession.token}`}>
+          <Link
+            href={`/auth/sign-out?token=${initialToken ?? clientSession.token}`}
+          >
             Sign out
           </Link>
         ) : (
