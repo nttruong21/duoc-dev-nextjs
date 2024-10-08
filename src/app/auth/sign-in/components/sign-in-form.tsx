@@ -1,10 +1,13 @@
 "use client";
 
+// Core
 import { z } from "zod";
 import { toast } from "sonner";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 
+// App
 import {
   Form,
   FormControl,
@@ -19,9 +22,9 @@ import { handleApiError } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import clientSession from "@/services/clientSession";
-import { useState } from "react";
-import { useAppContext } from "@/app/components/app-provider";
+import { useAppContext } from "@/app/_components/app-provider";
 
+// Form schema
 const formSchema = z
   .object({
     email: z.string().email(),
@@ -29,13 +32,14 @@ const formSchema = z
   })
   .strict();
 
+// Form type
 type Form = z.infer<typeof formSchema>;
 
+// Component
 const SignInForm = () => {
   const router = useRouter();
 
-  const { setIsLoggedIn } = useAppContext();
-
+  // Form
   const form = useForm<Form>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -44,8 +48,14 @@ const SignInForm = () => {
     },
   });
 
+  // Context
+  const { setProfile } = useAppContext();
+
+  // States
   const [isPending, setIsPending] = useState(false);
 
+  // Methods
+  // Handle submit
   const handleSubmit: SubmitHandler<Form> = async (values) => {
     try {
       setIsPending(true);
@@ -59,17 +69,22 @@ const SignInForm = () => {
         expiresAt: response.data.expiresAt,
       });
 
-      // Set client session token
-      clientSession.token = response.data.token;
-
-      // Set app context
-      setIsLoggedIn(true);
-
       toast.success("Success", {
         description: "Sign in successfully",
       });
 
+      // Set client session token
+      clientSession.token = response.data.token;
+
+      // Set app context
+      setProfile({
+        id: response.data.account.id,
+        name: response.data.account.name,
+        email: response.data.account.email,
+      });
+
       router.push("/profile");
+      router.refresh();
     } catch (error) {
       handleApiError({
         error,
@@ -80,6 +95,7 @@ const SignInForm = () => {
     }
   };
 
+  // Template
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">

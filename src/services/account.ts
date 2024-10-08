@@ -1,17 +1,19 @@
 import http from "@/lib/http";
 
+export interface Profile {
+  id: number;
+  name: string;
+  email: string;
+}
+
 interface GetProfileQueryResponse {
-  data: {
-    id: number;
-    name: string;
-    email: string;
-  };
+  data: Profile;
   message: string;
 }
 
 const accountServices = {
-  getProfile: (token?: string) => {
-    return http.get<GetProfileQueryResponse>(
+  getProfile: async (token?: string) => {
+    const res = await http.get<GetProfileQueryResponse>(
       "/account/me",
       token
         ? {
@@ -21,6 +23,7 @@ const accountServices = {
           }
         : undefined
     );
+    return res.data;
   },
   updateProfile: ({
     token,

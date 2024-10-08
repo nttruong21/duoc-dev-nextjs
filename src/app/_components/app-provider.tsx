@@ -1,29 +1,38 @@
 "use client";
 
+// Core
 import {
   createContext,
   FC,
   PropsWithChildren,
   useContext,
   useState,
+  Dispatch,
+  SetStateAction,
 } from "react";
 
+// App
 import { isServerSide } from "@/lib/utils";
+import { Profile } from "@/services/account";
 import clientSession from "@/services/clientSession";
 
-const Context = createContext<{
-  isLoggedIn: boolean;
-  setIsLoggedIn: (value: boolean) => void;
+// Initial App context
+const AppContext = createContext<{
+  profile?: Profile;
+  setProfile: Dispatch<SetStateAction<Profile | undefined>>;
 }>({
-  isLoggedIn: false,
-  setIsLoggedIn: () => {},
+  profile: undefined,
+  setProfile: () => {},
 });
 
+// Component
 const AppProvider: FC<
   PropsWithChildren & {
     initialToken?: string;
+    initialProfile?: Profile;
   }
-> = ({ children, initialToken }) => {
+> = ({ children, initialToken, initialProfile }) => {
+  // States
   useState(() => {
     if (!initialToken || isServerSide()) {
       return;
@@ -31,22 +40,24 @@ const AppProvider: FC<
     clientSession.token = initialToken;
   });
 
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(!!initialToken);
+  const [profile, setProfile] = useState<Profile | undefined>(initialProfile);
 
+  // Template
   return (
-    <Context.Provider
+    <AppContext.Provider
       value={{
-        isLoggedIn,
-        setIsLoggedIn,
+        profile,
+        setProfile,
       }}
     >
       {children}
-    </Context.Provider>
+    </AppContext.Provider>
   );
 };
 
+// Use app context hook
 export const useAppContext = () => {
-  const context = useContext(Context);
+  const context = useContext(AppContext);
   if (!context) {
     throw new Error("useAppContext must be used within a AppProvider");
   }

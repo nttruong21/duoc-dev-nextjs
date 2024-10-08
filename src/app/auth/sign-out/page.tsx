@@ -9,14 +9,14 @@ import authServices from "@/services/auth";
 import { handleApiError } from "@/lib/utils";
 import clientSession from "@/services/clientSession";
 import CircleLoading from "@/components/app/circle-loading";
-import { useAppContext } from "@/app/components/app-provider";
+import { useAppContext } from "@/app/_components/app-provider";
 
 const SignOut = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const revoke = searchParams.get("revoke");
-  const { setIsLoggedIn } = useAppContext();
+  const { setProfile } = useAppContext();
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -33,14 +33,16 @@ const SignOut = () => {
         // Remove cookie token for Next server
         await authServices.removeTokenCookie(abortController.signal);
 
-        setIsLoggedIn(false);
-        clientSession.token = undefined;
-
         toast.success("Success", {
           description: "Sign out successfully",
         });
 
+        // Set app context
+        setProfile(undefined);
+        clientSession.token = undefined;
+
         router.push("/");
+        router.refresh();
       } catch (error) {
         handleApiError({
           error,

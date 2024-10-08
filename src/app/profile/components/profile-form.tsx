@@ -19,6 +19,7 @@ import { handleApiError } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import accountServices from "@/services/account";
+import { useAppContext } from "@/app/_components/app-provider";
 
 const formSchema = z
   .object({
@@ -30,6 +31,7 @@ type Form = z.infer<typeof formSchema>;
 
 const ProfileForm: FC<{ name: string }> = ({ name }) => {
   const router = useRouter();
+  const { setProfile } = useAppContext();
 
   const form = useForm<Form>({
     resolver: zodResolver(formSchema),
@@ -52,6 +54,16 @@ const ProfileForm: FC<{ name: string }> = ({ name }) => {
       toast.success("Success", {
         description: "Update profile successfully",
       });
+
+      // Set app context
+      setProfile((prev) =>
+        prev
+          ? {
+              ...prev,
+              name: values.name,
+            }
+          : prev
+      );
 
       router.refresh();
     } catch (error) {

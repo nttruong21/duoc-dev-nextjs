@@ -14,9 +14,9 @@ const Profile = async () => {
 
   return (
     <div className="space-y-4">
-      <div>Fetch data from server: {response.data.name}</div>
+      <div>Fetch data from server: {response.name}</div>
       <ClientComponent />
-      <ProfileForm name={response.data.name} />
+      <ProfileForm name={response.name} />
     </div>
   );
 };

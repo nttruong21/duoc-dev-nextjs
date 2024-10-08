@@ -2,6 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import React, { FC } from "react";
+import { cookies } from "next/headers";
 
 // App
 import {
@@ -20,6 +21,9 @@ import { ConfirmDeleteProductButton } from ".";
 
 // Component
 const ProductCard: FC<{ product: Product }> = ({ product }) => {
+  const cookieToken = cookies().get("token");
+
+  // Template
   // Template
   return (
     <Card>
@@ -40,13 +44,15 @@ const ProductCard: FC<{ product: Product }> = ({ product }) => {
         <CardDescription>{product.price} đ</CardDescription>
       </CardContent>
 
-      <CardFooter className="flex justify-end items-center gap-2">
-        <Button asChild variant="outline">
-          <Link href={`/products/${product.id}`}>Update</Link>
-        </Button>
+      {cookieToken && (
+        <CardFooter className="flex justify-end items-center gap-2">
+          <Button asChild variant="outline">
+            <Link href={`/products/${product.id}`}>Update</Link>
+          </Button>
 
-        <ConfirmDeleteProductButton id={product.id} name={product.name} />
-      </CardFooter>
+          <ConfirmDeleteProductButton id={product.id} name={product.name} />
+        </CardFooter>
+      )}
     </Card>
   );
 };

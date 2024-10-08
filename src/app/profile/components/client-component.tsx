@@ -1,19 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useAppContext } from "@/app/_components/app-provider";
 
-import accountServices from "@/services/account";
-
+// Component
 const ClientComponent = () => {
-  const [name, setName] = useState<string>();
+  const { profile } = useAppContext();
 
-  useEffect(() => {
-    accountServices.getProfile().then((response) => {
-      setName(response.data.name);
-    });
-  });
-
-  return <div>Fetch data from client: {name} </div>;
+  // Template
+  return <div>Fetch data from client: {profile?.name} </div>;
 };
 
 export default ClientComponent;
