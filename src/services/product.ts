@@ -1,5 +1,6 @@
 import http from "@/lib/http";
 
+// Types
 export interface Product {
   id: number;
   name: string;
@@ -19,6 +20,7 @@ export interface CreateProductBody {
 
 export type UpdateProductBody = CreateProductBody;
 
+// Services
 const productServices = {
   getList: async () => {
     const res = await http.get<{
@@ -37,6 +39,9 @@ const productServices = {
     return http.put(`/products/${id}`, {
       body: JSON.stringify(data),
     });
+  },
+  delete: async (id: number) => {
+    return http.delete(`/products/${id}`);
   },
   getDetail: async (id: number) => {
     const res = await http.get<{
