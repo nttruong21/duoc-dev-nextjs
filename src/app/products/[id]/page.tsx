@@ -1,24 +1,22 @@
+// Core
 import React from "react";
 
-import { HttpError } from "@/lib/http";
+// App
 import productServices from "@/services/product";
+
+// Internal
+import { ProductForm } from "../_components";
 
 // Component
 const ProductDetail = async ({ params }: { params: { id: string } }) => {
-  try {
-    const product = await productServices.getDetail(+params.id);
-    return <div>{product.name}</div>;
-  } catch (error) {
-    console.log(">>> error:", error);
-    return (
-      <div>
-        Error:{" "}
-        {error instanceof HttpError
-          ? error.data.message
-          : "An error occurred, please try again"}
-      </div>
-    );
-  }
+  const product = await productServices.getDetail(+params.id);
+
+  // Template
+  return (
+    <div>
+      <ProductForm product={product} />
+    </div>
+  );
 };
 
 export default ProductDetail;

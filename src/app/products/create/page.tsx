@@ -1,6 +1,9 @@
-import { ProductForm } from "./components";
+// Internal
+import { ProductForm } from "../_components";
 
+// Component
 const CreateProduct = () => {
+  // Template
   return (
     <div className="border border-border rounded-md p-6">
       <h1 className="text-xl font-semibold text-center">Create new product</h1>

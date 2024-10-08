@@ -1,5 +1,6 @@
 "use client";
 
+// Core
 import { z } from "zod";
 import { toast } from "sonner";
 import Image from "next/image";
@@ -8,6 +9,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ChangeEvent, useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 
+// App
+import productServices, {
+  CreateProductBody,
+  Product,
+  UpdateProductBody,
+} from "@/services/product";
 import {
   Form,
   FormControl,
@@ -21,7 +28,6 @@ import { handleApiError } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import productServices, { CreateProductBody } from "@/services/product";
 
 // Form schema
 const formSchema = z
@@ -39,23 +45,27 @@ const formSchema = z
 type Form = z.infer<typeof formSchema>;
 
 // Component
-const SignInForm = () => {
+const ProductForm = ({ product }: { product?: Product }) => {
+  // Hooks
   const router = useRouter();
 
+  // Form
   const form = useForm<Form>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      price: 1000,
-      description: "",
-      image: "",
+      name: product?.name || "",
+      price: product?.price || 1000,
+      description: product?.description || "",
+      image: product?.image || "",
     },
   });
 
+  // Refs
   const inputFileRef = useRef<HTMLInputElement>(null);
 
+  // States
   const [isPending, setIsPending] = useState(false);
-  const [imageUrl, setImageUrl] = useState<string>();
+  const [imageUrl, setImageUrl] = useState<string | undefined>(product?.image);
 
   // Methods
   // Handle change image file
@@ -86,6 +96,19 @@ const SignInForm = () => {
     form.setValue("image", "");
   };
 
+  // Handle create product
+  const handleCreateProduct = async (data: CreateProductBody) => {
+    await productServices.create(data);
+    toast.success("Product created successfully");
+    router.push("/products");
+  };
+
+  // Handle update product
+  const handleUpdateProduct = async (id: number, data: UpdateProductBody) => {
+    await productServices.update(id, data);
+    toast.success("Product updated successfully");
+  };
+
   // Handle submit
   const handleSubmit: SubmitHandler<Form> = async (values) => {
     try {
@@ -96,16 +119,21 @@ const SignInForm = () => {
           ? await fileServices.upload(values.image)
           : values.image!;
 
-      const data: CreateProductBody = {
-        ...values,
-        image: filePath,
-      };
-
-      await productServices.create(data);
-
-      toast.success("Product created successfully");
-      setIsPending(false);
-      router.push("/products");
+      if (product) {
+        // Update product
+        const data: UpdateProductBody = {
+          ...values,
+          image: filePath,
+        };
+        await handleUpdateProduct(product.id, data);
+      } else {
+        // Create product
+        const data: CreateProductBody = {
+          ...values,
+          image: filePath,
+        };
+        await handleCreateProduct(data);
+      }
     } catch (error) {
       handleApiError({
         error,
@@ -116,6 +144,7 @@ const SignInForm = () => {
     }
   };
 
+  // Template
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
@@ -183,9 +212,10 @@ const SignInForm = () => {
                   <Image
                     src={imageUrl}
                     alt="Product"
+                    priority
                     width={100}
                     height={100}
-                    className="w-32 h-32"
+                    className="w-32 h-32 object-cover"
                   />
 
                   <Button variant="ghost" onClick={handleRemoveImageFile}>
@@ -205,4 +235,4 @@ const SignInForm = () => {
   );
 };
 
-export default SignInForm;
+export default ProductForm;

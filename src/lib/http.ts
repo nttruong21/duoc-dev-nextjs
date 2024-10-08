@@ -119,6 +119,7 @@ const request = async <HttpResponse>(
   }
 
   // Others
+  // throw new Error(httpResponse.message);
   throw new HttpError({
     status: fetchResponse.status,
     data: httpResponse,
