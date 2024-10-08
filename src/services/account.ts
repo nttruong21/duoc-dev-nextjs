@@ -10,8 +10,8 @@ interface GetProfileQueryResponse {
 }
 
 const accountServices = {
-  getProfile: (token?: string) =>
-    http.get<GetProfileQueryResponse>(
+  getProfile: (token?: string) => {
+    return http.get<GetProfileQueryResponse>(
       "/account/me",
       token
         ? {
@@ -20,22 +20,24 @@ const accountServices = {
             },
           }
         : undefined
-    ),
+    );
+  },
   updateProfile: ({
     token,
     data,
   }: {
     token?: string;
     data: { name: string };
-  }) =>
-    http.put("/account/me", {
+  }) => {
+    return http.put("/account/me", {
       body: JSON.stringify(data),
       headers: token
         ? {
             Authorization: `Bearer ${token}`,
           }
         : undefined,
-    }),
+    });
+  },
 };
 
 export default accountServices;

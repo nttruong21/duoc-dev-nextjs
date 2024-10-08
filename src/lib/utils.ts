@@ -20,8 +20,6 @@ export function handleApiError({
   error: unknown;
   setError?: UseFormSetError<any>;
 }) {
-  console.log(error);
-
   if (!(error instanceof HttpError)) {
     toast.error("Error", {
       description: "Có lỗi xảy ra, vui lòng thử lại",

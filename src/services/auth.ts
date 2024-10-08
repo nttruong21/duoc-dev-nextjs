@@ -14,33 +14,38 @@ interface SignInMutationResponse {
 }
 
 const authServices = {
-  signIn: (body: { email: string; password: string }) =>
-    http.post<SignInMutationResponse>("/auth/login", {
+  signIn: (body: { email: string; password: string }) => {
+    return http.post<SignInMutationResponse>("/auth/login", {
       body: JSON.stringify(body),
-    }),
+    });
+  },
   signUp: (body: {
     name: string;
     email: string;
     password: string;
     confirmPassword: string;
-  }) =>
-    http.post<SignInMutationResponse>("/auth/register", {
+  }) => {
+    return http.post<SignInMutationResponse>("/auth/register", {
       body: JSON.stringify(body),
-    }),
-  signOut: () =>
-    http.post("/auth/logout", {
+    });
+  },
+  signOut: () => {
+    return http.post("/auth/logout", {
       body: JSON.stringify({}),
-    }),
-  setTokenCookie: (body: { token: string; expiresAt: string }) =>
-    http.post("/api/auth/set-token-cookie", {
+    });
+  },
+  setTokenCookie: (body: { token: string; expiresAt: string }) => {
+    return http.post("/api/auth/set-token-cookie", {
       baseUrl: "",
       body: JSON.stringify(body),
-    }),
-  removeTokenCookie: (signal?: AbortSignal) =>
-    http.delete("/api/auth/remove-token-cookie", {
+    });
+  },
+  removeTokenCookie: (signal?: AbortSignal) => {
+    return http.delete("/api/auth/remove-token-cookie", {
       baseUrl: "",
       signal,
-    }),
+    });
+  },
 };
 
 export default authServices;

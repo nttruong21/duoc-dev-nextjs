@@ -2,7 +2,10 @@
 
 import { z } from "zod";
 import { toast } from "sonner";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ChangeEvent, useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 
 import {
@@ -13,12 +16,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useRouter } from "next/navigation";
+import fileServices from "@/services/file";
 import { handleApiError } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
+import productServices, { CreateProductBody } from "@/services/product";
 
 // Form schema
 const formSchema = z
@@ -45,16 +48,64 @@ const SignInForm = () => {
       name: "",
       price: 1000,
       description: "",
-      image: undefined,
+      image: "",
     },
   });
 
-  const [isPending, setIsPending] = useState(false);
+  const inputFileRef = useRef<HTMLInputElement>(null);
 
+  const [isPending, setIsPending] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string>();
+
+  // Methods
+  // Handle change image file
+  const handleChangeImageFile = (
+    e: ChangeEvent<HTMLInputElement>,
+    onChangeField: (...event: any[]) => void
+  ) => {
+    const file = e.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    onChangeField(file);
+
+    setImageUrl((imageUrl) => {
+      if (imageUrl?.startsWith("blob:")) {
+        window.URL.revokeObjectURL(imageUrl);
+      }
+      return window.URL.createObjectURL(file);
+    });
+  };
+
+  // Handle remove image file
+  const handleRemoveImageFile = () => {
+    inputFileRef.current!.value = "";
+    setImageUrl(undefined);
+    form.setValue("image", "");
+  };
+
+  // Handle submit
   const handleSubmit: SubmitHandler<Form> = async (values) => {
     try {
-      console.log(values);
       setIsPending(true);
+
+      const filePath =
+        values.image instanceof File
+          ? await fileServices.upload(values.image)
+          : values.image!;
+
+      const data: CreateProductBody = {
+        ...values,
+        image: filePath,
+      };
+
+      await productServices.createProduct(data);
+
+      toast.success("Product created successfully");
+      setIsPending(false);
+      router.push("/products");
     } catch (error) {
       handleApiError({
         error,
@@ -118,13 +169,30 @@ const SignInForm = () => {
               <FormLabel>Image</FormLabel>
               <FormControl>
                 <Input
+                  ref={inputFileRef}
                   placeholder="Image"
                   type="file"
                   accept="image/*"
-                  onChange={(e) => field.onChange(e.target.files?.[0])}
+                  onChange={(e) => handleChangeImageFile(e, field.onChange)}
                 />
               </FormControl>
               <FormMessage />
+
+              {imageUrl && (
+                <div className="mt-2 flex gap-4">
+                  <Image
+                    src={imageUrl}
+                    alt="Product"
+                    width={100}
+                    height={100}
+                    className="w-32 h-32"
+                  />
+
+                  <Button variant="ghost" onClick={handleRemoveImageFile}>
+                    Remove
+                  </Button>
+                </div>
+              )}
             </FormItem>
           )}
         />

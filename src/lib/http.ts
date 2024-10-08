@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+
 import { isServerSide } from "@/lib/utils";
 import envConfig from "@/configs/environment";
 import clientSession from "@/services/clientSession";
@@ -60,10 +61,13 @@ const request = async <HttpResponse>(
 ): Promise<HttpResponse> => {
   const baseUrl = options?.baseUrl ?? envConfig.NEXT_PUBLIC_BASE_API_ENDPOINT;
   const fullUrl = `${baseUrl}${url}`;
-  const baseHeaders = {
-    "Content-Type": "application/json",
+
+  const baseHeaders: HeadersInit = {
     Authorization: `Bearer ${clientSession.token}`,
   };
+  if (!(options?.body instanceof FormData)) {
+    baseHeaders["Content-Type"] = "application/json;charset=utf-8";
+  }
 
   const fetchResponse = await fetch(fullUrl, {
     ...options,
@@ -109,7 +113,7 @@ const request = async <HttpResponse>(
         });
         clientSession.token = undefined;
         isHttpUnauthorizeError = false;
-        // location.href = "/";
+        location.href = "/";
       }
     }
   }
