@@ -18,7 +18,7 @@ export interface CreateProductBody {
 }
 
 const productServices = {
-  getProductList: async () => {
+  getList: async () => {
     const res = await http.get<{
       data: Product[];
       message: string;
@@ -26,10 +26,18 @@ const productServices = {
 
     return res.data;
   },
-  createProduct: async (data: CreateProductBody) => {
+  create: async (data: CreateProductBody) => {
     return http.post("/products", {
       body: JSON.stringify(data),
     });
+  },
+  getDetail: async (id: number) => {
+    const res = await http.get<{
+      data: Product;
+      message: string;
+    }>(`/products/${id}`);
+
+    return res.data;
   },
 };
 

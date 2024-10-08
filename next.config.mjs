@@ -3,8 +3,9 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "www.benhhen.vn",
+        protocol: "http",
+        hostname: "localhost",
+        port: "4000",
       },
     ],
   },

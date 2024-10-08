@@ -101,7 +101,7 @@ const SignInForm = () => {
         image: filePath,
       };
 
-      await productServices.createProduct(data);
+      await productServices.create(data);
 
       toast.success("Product created successfully");
       setIsPending(false);
