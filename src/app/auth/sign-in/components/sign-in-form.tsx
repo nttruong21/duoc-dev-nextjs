@@ -21,8 +21,8 @@ import { useRouter } from "next/navigation";
 import { handleApiError } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import clientSession from "@/services/clientSession";
-import { useAppContext } from "@/app/_components/app-provider";
+import useAuthStore from "@/stores/auth";
+import { useShallow } from "zustand/react/shallow";
 
 // Form schema
 const formSchema = z
@@ -48,8 +48,14 @@ const SignInForm = () => {
     },
   });
 
-  // Context
-  const { setProfile } = useAppContext();
+  // Stores
+  const authStore = useAuthStore(
+    useShallow(({ setIsSignedIn, setTokenExpiredAt, setToken }) => ({
+      setIsSignedIn,
+      setToken,
+      setTokenExpiredAt,
+    }))
+  );
 
   // States
   const [isPending, setIsPending] = useState(false);
@@ -61,12 +67,14 @@ const SignInForm = () => {
       setIsPending(true);
 
       // Mutate sign in
-      const response = await authServices.signIn(values);
+      const {
+        data: { token, expiresAt },
+      } = await authServices.signIn(values);
 
       // Set cookie token for Next server
       await authServices.setTokenCookie({
-        token: response.data.token,
-        expiresAt: response.data.expiresAt,
+        token,
+        expiresAt,
       });
 
       toast.success("Success", {
@@ -74,14 +82,16 @@ const SignInForm = () => {
       });
 
       // Set client session token
-      clientSession.token = response.data.token;
+      authStore.setToken(token);
+      authStore.setTokenExpiredAt(expiresAt);
+      authStore.setIsSignedIn(true);
 
       // Set app context
-      setProfile({
-        id: response.data.account.id,
-        name: response.data.account.name,
-        email: response.data.account.email,
-      });
+      // setProfile({
+      //   id: response.data.account.id,
+      //   name: response.data.account.name,
+      //   email: response.data.account.email,
+      // });
 
       router.push("/profile");
       router.refresh();

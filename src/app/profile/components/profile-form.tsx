@@ -1,5 +1,5 @@
 "use client";
-
+// Core
 import { z } from "zod";
 import { toast } from "sonner";
 import { FC, useState } from "react";
@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 
+// App
 import {
   Form,
   FormControl,
@@ -19,8 +20,8 @@ import { handleApiError } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import accountServices from "@/services/account";
-import { useAppContext } from "@/app/_components/app-provider";
 
+// Form
 const formSchema = z
   .object({
     name: z.string().trim().min(6).max(100),
@@ -29,10 +30,11 @@ const formSchema = z
 
 type Form = z.infer<typeof formSchema>;
 
+// Component
 const ProfileForm: FC<{ name: string }> = ({ name }) => {
   const router = useRouter();
-  const { setProfile } = useAppContext();
 
+  // Form
   const form = useForm<Form>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -40,8 +42,11 @@ const ProfileForm: FC<{ name: string }> = ({ name }) => {
     },
   });
 
+  // States
   const [isPending, setIsPending] = useState(false);
 
+  // Methods
+  // Handle submit
   const handleSubmit: SubmitHandler<Form> = async (values) => {
     try {
       setIsPending(true);
@@ -56,14 +61,14 @@ const ProfileForm: FC<{ name: string }> = ({ name }) => {
       });
 
       // Set app context
-      setProfile((prev) =>
-        prev
-          ? {
-              ...prev,
-              name: values.name,
-            }
-          : prev
-      );
+      // setProfile((prev) =>
+      //   prev
+      //     ? {
+      //         ...prev,
+      //         name: values.name,
+      //       }
+      //     : prev
+      // );
 
       router.refresh();
     } catch (error) {
@@ -76,6 +81,7 @@ const ProfileForm: FC<{ name: string }> = ({ name }) => {
     }
   };
 
+  // Template
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">

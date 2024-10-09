@@ -7,11 +7,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 // App
 import { HttpError } from "@/lib/http";
+import useAuthStore from "@/stores/auth";
 import authServices from "@/services/auth";
 import { handleApiError } from "@/lib/utils";
-import clientSession from "@/services/clientSession";
 import CircleLoading from "@/components/app/circle-loading";
-import { useAppContext } from "@/app/_components/app-provider";
 
 // Component
 const SignOut = () => {
@@ -19,15 +18,20 @@ const SignOut = () => {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const revoke = searchParams.get("revoke");
-  const { setProfile } = useAppContext();
+
+  // Stores
+  const authStoreToken = useAuthStore((state) => state.token);
+
+  // Stores
+  const resetAuthStore = useAuthStore((state) => state.reset);
 
   // Effects
   useEffect(() => {
     const abortController = new AbortController();
     const handleSignOut = async () => {
       try {
-        if (token !== clientSession.token) {
-          return;
+        if (token !== authStoreToken) {
+          throw new Error("Token not match");
         }
 
         if (revoke === "true") {
@@ -42,8 +46,7 @@ const SignOut = () => {
         });
 
         // Set app context
-        setProfile(undefined);
-        clientSession.token = undefined;
+        resetAuthStore();
 
         router.push("/");
         router.refresh();
@@ -66,7 +69,7 @@ const SignOut = () => {
         })
       );
     };
-  }, [revoke, router, token, setProfile]);
+  }, [revoke, router, token, resetAuthStore, authStoreToken]);
 
   // Template
   return (

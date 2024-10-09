@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 
+import useAuthStore from "@/stores/auth";
 import { isServerSide } from "@/lib/utils";
 import envConfig from "@/configs/environment";
-import clientSession from "@/services/clientSession";
 
 // General http error type
 export class HttpError<
@@ -62,9 +62,12 @@ const request = async <HttpResponse>(
   const baseUrl = options?.baseUrl ?? envConfig.NEXT_PUBLIC_BASE_API_ENDPOINT;
   const fullUrl = `${baseUrl}${url}`;
 
-  const baseHeaders: HeadersInit = {
-    Authorization: `Bearer ${clientSession.token}`,
-  };
+  const isServer = isServerSide();
+
+  const baseHeaders: HeadersInit = {};
+  if (!isServer) {
+    baseHeaders.Authorization = `Bearer ${useAuthStore.getState().token}`;
+  }
   if (!(options?.body instanceof FormData)) {
     baseHeaders["Content-Type"] = "application/json;charset=utf-8";
   }
@@ -95,7 +98,7 @@ const request = async <HttpResponse>(
   // 401
   if (fetchResponse.status === 401) {
     console.log(">>> Token expired ...");
-    if (isServerSide()) {
+    if (isServer) {
       console.log("Server side ...");
 
       const token = (options?.headers as any)?.Authorization?.split(
@@ -111,7 +114,7 @@ const request = async <HttpResponse>(
         await fetch("/api/auth/remove-token-cookie", {
           method: "DELETE",
         });
-        clientSession.token = undefined;
+        useAuthStore.getState().reset();
         isHttpUnauthorizeError = false;
         location.href = "/";
       }

@@ -10,14 +10,10 @@ const Error: FC<{
 }> = ({ reset }) => {
   // Template
   return (
-    <html>
-      <body>
-        <div className="container">
-          <h2>Something went wrong!</h2>
-          <Button onClick={reset}>Try again</Button>
-        </div>
-      </body>
-    </html>
+    <div className="container">
+      <h2>Something went wrong!</h2>
+      <Button onClick={reset}>Try again</Button>
+    </div>
   );
 };
 
