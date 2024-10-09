@@ -101,7 +101,6 @@ const ProductForm = ({ product }: { product?: Product }) => {
     await productServices.create(data);
     toast.success("Product created successfully");
     router.push("/products");
-    router.refresh();
   };
 
   // Handle update product
@@ -135,6 +134,8 @@ const ProductForm = ({ product }: { product?: Product }) => {
         };
         await handleCreateProduct(data);
       }
+
+      router.refresh();
     } catch (error) {
       handleApiError({
         error,

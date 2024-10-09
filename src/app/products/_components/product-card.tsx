@@ -34,7 +34,7 @@ const ProductCard: FC<{ product: Product }> = ({ product }) => {
           alt={product.name}
           width={240}
           height={135}
-          className="aspect-video w-full h-full object-cover rounded-xl"
+          className="aspect-video w-full object-cover rounded-xl"
         />
       </CardHeader>
 
@@ -44,15 +44,21 @@ const ProductCard: FC<{ product: Product }> = ({ product }) => {
         <CardDescription>{product.price} đ</CardDescription>
       </CardContent>
 
-      {cookieToken && (
-        <CardFooter className="flex justify-end items-center gap-2">
-          <Button asChild variant="outline">
-            <Link href={`/products/${product.id}`}>Update</Link>
-          </Button>
+      <CardFooter className="flex justify-end items-center gap-2">
+        {cookieToken ? (
+          <>
+            <Button asChild variant="outline">
+              <Link href={`/products/update/${product.id}`}>Update</Link>
+            </Button>
 
-          <ConfirmDeleteProductButton id={product.id} name={product.name} />
-        </CardFooter>
-      )}
+            <ConfirmDeleteProductButton id={product.id} name={product.name} />
+          </>
+        ) : (
+          <Button asChild>
+            <Link href={`/products/${product.id}`}>View more</Link>
+          </Button>
+        )}
+      </CardFooter>
     </Card>
   );
 };

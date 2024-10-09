@@ -1,5 +1,13 @@
+// Core
+import { Metadata } from "next";
+
 // Internal
 import { ProductForm } from "../_components";
+
+// Metadata
+export const metadata: Metadata = {
+  title: "Create product",
+};
 
 // Component
 const CreateProduct = () => {
