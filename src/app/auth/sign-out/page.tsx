@@ -1,9 +1,11 @@
 "use client";
 
+// Core
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+// App
 import { HttpError } from "@/lib/http";
 import authServices from "@/services/auth";
 import { handleApiError } from "@/lib/utils";
@@ -11,6 +13,7 @@ import clientSession from "@/services/clientSession";
 import CircleLoading from "@/components/app/circle-loading";
 import { useAppContext } from "@/app/_components/app-provider";
 
+// Component
 const SignOut = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -18,6 +21,7 @@ const SignOut = () => {
   const revoke = searchParams.get("revoke");
   const { setProfile } = useAppContext();
 
+  // Effects
   useEffect(() => {
     const abortController = new AbortController();
     const handleSignOut = async () => {
@@ -62,8 +66,9 @@ const SignOut = () => {
         })
       );
     };
-  }, [revoke, router, token]);
+  }, [revoke, router, token, setProfile]);
 
+  // Template
   return (
     <div className="flex justify-center py-8">
       <CircleLoading />

@@ -2,6 +2,10 @@
 import Image from "next/image";
 import { Metadata } from "next";
 
+// App
+import envConfig from "@/configs/environment";
+import { BASE_METADATA } from "@/app/shared-metadata";
+
 // Internal
 import { Props } from "./lib/types";
 import { getProduct } from "./lib/utils";
@@ -13,6 +17,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: product.name,
     description: product.description,
+    openGraph: {
+      ...BASE_METADATA.openGraph,
+      title: product.name,
+      description: product.description,
+      images: product.image,
+      url: `${envConfig.NEXT_PUBLIC_URL}/products/${product.id}`,
+    },
+    alternates: {
+      canonical: `${envConfig.NEXT_PUBLIC_URL}/products/${product.id}`,
+    },
   };
 }
 

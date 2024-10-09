@@ -5,23 +5,19 @@ import { Inter } from "next/font/google";
 
 // App
 import { Toaster } from "@/components/ui/sonner";
+import accountServices, { Profile } from "@/services/account";
 
 // Internal
+import { BASE_METADATA } from "./shared-metadata";
 import { Header, AppProvider } from "./_components";
 
 import "./globals.css";
-import accountServices, { Profile } from "@/services/account";
 
+// Font
 const inter = Inter({ subsets: ["latin"] });
 
 // Metadata
-export const metadata: Metadata = {
-  title: {
-    template: "%s | Next.js",
-    default: "Next.js",
-  },
-  description: "This is a description",
-};
+export const metadata: Metadata = BASE_METADATA;
 
 // Component
 export default async function RootLayout({
