@@ -1,14 +1,15 @@
 // Core
 import { FC } from "react";
 import Link from "next/link";
-import { cookies } from "next/headers";
+// import { cookies } from "next/headers";
 
 // App
 import { Profile } from "@/services/account";
 
 // Component
 const Header: FC<{ profile?: Profile }> = ({ profile }) => {
-  const cookieToken = cookies().get("token")?.value;
+  // const cookieToken = cookies().get("token")?.value;
+  const cookieToken = undefined;
 
   // Template
   return (

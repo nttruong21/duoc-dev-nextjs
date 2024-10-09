@@ -4,6 +4,7 @@
 import { z } from "zod";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useShallow } from "zustand/react/shallow";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 
@@ -16,13 +17,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import useAuthStore from "@/stores/auth";
 import authServices from "@/services/auth";
 import { useRouter } from "next/navigation";
 import { handleApiError } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import useAuthStore from "@/stores/auth";
-import { useShallow } from "zustand/react/shallow";
 
 // Form schema
 const formSchema = z
@@ -81,7 +81,7 @@ const SignInForm = () => {
         description: "Sign in successfully",
       });
 
-      // Set client session token
+      // Set auth store
       authStore.setToken(token);
       authStore.setTokenExpiredAt(expiresAt);
       authStore.setIsSignedIn(true);

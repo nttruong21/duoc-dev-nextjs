@@ -2,7 +2,8 @@
 
 // Core
 import { toast } from "sonner";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
+import { useShallow } from "zustand/react/shallow";
 import { useRouter, useSearchParams } from "next/navigation";
 
 // App
@@ -13,24 +14,26 @@ import { handleApiError } from "@/lib/utils";
 import CircleLoading from "@/components/app/circle-loading";
 
 // Component
-const SignOut = () => {
+const SignOutHandler = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const revoke = searchParams.get("revoke");
 
   // Stores
-  const authStoreToken = useAuthStore((state) => state.token);
-
-  // Stores
-  const resetAuthStore = useAuthStore((state) => state.reset);
+  const authStore = useAuthStore(
+    useShallow(({ token, reset }) => ({
+      token,
+      reset,
+    }))
+  );
 
   // Effects
   useEffect(() => {
     const abortController = new AbortController();
     const handleSignOut = async () => {
       try {
-        if (token !== authStoreToken) {
+        if (token !== authStore.token) {
           throw new Error("Token not match");
         }
 
@@ -45,8 +48,8 @@ const SignOut = () => {
           description: "Sign out successfully",
         });
 
-        // Set app context
-        resetAuthStore();
+        // Reset auth store
+        authStore.reset();
 
         router.push("/");
         router.refresh();
@@ -69,13 +72,21 @@ const SignOut = () => {
         })
       );
     };
-  }, [revoke, router, token, resetAuthStore, authStoreToken]);
+  }, [revoke, router, token, authStore]);
 
   // Template
   return (
     <div className="flex justify-center py-8">
       <CircleLoading />
     </div>
+  );
+};
+
+const SignOut = () => {
+  return (
+    <Suspense fallback="Loading ...">
+      <SignOutHandler />;
+    </Suspense>
   );
 };
 

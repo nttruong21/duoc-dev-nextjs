@@ -1,11 +1,7 @@
 import { cookies } from "next/headers";
-import { revalidatePath } from "next/cache";
 
 export async function DELETE() {
-  const cookieStore = cookies();
-
-  cookieStore.delete("token");
-  revalidatePath("/");
+  cookies().delete("token");
 
   return Response.json(
     {
