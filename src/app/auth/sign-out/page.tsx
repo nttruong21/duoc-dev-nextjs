@@ -7,10 +7,11 @@ import { useShallow } from "zustand/react/shallow";
 import { useRouter, useSearchParams } from "next/navigation";
 
 // App
-import { HttpError } from "@/lib/http";
 import useAuthStore from "@/stores/auth";
 import authServices from "@/services/auth";
 import { handleApiError } from "@/lib/utils";
+import useProfileStore from "@/stores/profile";
+import { HttpCancelledError } from "@/lib/http";
 import CircleLoading from "@/components/app/circle-loading";
 
 // Component
@@ -21,12 +22,16 @@ const SignOutHandler = () => {
   const revoke = searchParams.get("revoke");
 
   // Stores
+  // Auth
   const authStore = useAuthStore(
     useShallow(({ token, reset }) => ({
       token,
       reset,
     }))
   );
+
+  // Profile
+  const resetProfileStore = useProfileStore((state) => state.reset);
 
   // Effects
   useEffect(() => {
@@ -48,8 +53,9 @@ const SignOutHandler = () => {
           description: "Sign out successfully",
         });
 
-        // Reset auth store
+        // Reset auth & profile store
         authStore.reset();
+        resetProfileStore();
 
         router.push("/");
         router.refresh();
@@ -64,15 +70,15 @@ const SignOutHandler = () => {
 
     return () => {
       abortController.abort(
-        new HttpError({
-          status: 499,
+        new HttpCancelledError({
           data: {
             message: "Cancel request",
           },
         })
       );
     };
-  }, [revoke, router, token, authStore]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Template
   return (

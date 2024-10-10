@@ -3,7 +3,11 @@ import { twMerge } from "tailwind-merge";
 import { clsx, type ClassValue } from "clsx";
 import { UseFormSetError } from "react-hook-form";
 
-import { HttpError, HttpUnprocessableEntityError } from "./http";
+import {
+  HttpError,
+  HttpUnprocessableEntityError,
+  HttpCancelledError,
+} from "./http";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -29,11 +33,15 @@ export function handleApiError({
 
   // error is HttpError instance
   // Canceled error
+  if (error instanceof HttpCancelledError) {
+    return;
+  }
+
   if (error.status === 499) {
     return;
   }
 
-  // Other errors
+  // Unprocessable entity error
   if (error instanceof HttpUnprocessableEntityError && setError) {
     error.data.errors.forEach((error) => {
       setError(error.field, {
@@ -44,7 +52,15 @@ export function handleApiError({
     return;
   }
 
+  // Other errors
   toast.error("Error", {
     description: error.data.message,
+  });
+}
+
+export function logging(actor: string, ...messages: unknown[]) {
+  console.log(`>>> [${actor}]:`);
+  messages.forEach((message) => {
+    console.log(message);
   });
 }

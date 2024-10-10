@@ -1,8 +1,11 @@
+// Core
 import { redirect } from "next/navigation";
 
+// App
 import useAuthStore from "@/stores/auth";
-import { isServerSide } from "@/lib/utils";
+import { isServerSide, logging } from "@/lib/utils";
 import envConfig from "@/configs/environment";
+import useProfileStore from "@/stores/profile";
 
 // General http error type
 export class HttpError<
@@ -43,6 +46,21 @@ export class HttpUnprocessableEntityError extends HttpError<HttpUnprocessableEnt
     super({
       status: 422,
       message: "Unprocessable entity error",
+      data,
+    });
+  }
+}
+
+// 499 error type
+export interface HttpCancelledErrorData {
+  message: string;
+}
+
+export class HttpCancelledError extends HttpError<HttpCancelledErrorData> {
+  constructor({ data }: { data: HttpCancelledErrorData }) {
+    super({
+      status: 499,
+      message: "Request cancelled",
       data,
     });
   }
@@ -97,9 +115,10 @@ const request = async <HttpResponse>(
 
   // 401
   if (fetchResponse.status === 401) {
-    console.log(">>> Token expired ...");
+    logging("Http", "Token expired");
+
     if (isServer) {
-      console.log("Server side ...");
+      logging("Http", "Token expired on server side");
 
       const token = (options?.headers as any)?.Authorization?.split(
         "Bearer"
@@ -107,14 +126,17 @@ const request = async <HttpResponse>(
 
       redirect(`/auth/sign-out?token=${token}`);
     } else {
-      console.log("Client side ...");
+      logging("Http", "Token expired on client side");
 
       if (!isHttpUnauthorizeError) {
         isHttpUnauthorizeError = true;
         await fetch("/api/auth/remove-token-cookie", {
           method: "DELETE",
         });
+
         useAuthStore.getState().reset();
+        useProfileStore.getState().reset();
+
         isHttpUnauthorizeError = false;
         location.href = "/";
       }

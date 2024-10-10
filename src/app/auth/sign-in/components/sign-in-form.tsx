@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 import { handleApiError } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import useProfileStore from "@/stores/profile";
 
 // Form schema
 const formSchema = z
@@ -57,6 +58,8 @@ const SignInForm = () => {
     }))
   );
 
+  const setProfileStore = useProfileStore((state) => state.set);
+
   // States
   const [isPending, setIsPending] = useState(false);
 
@@ -68,7 +71,7 @@ const SignInForm = () => {
 
       // Mutate sign in
       const {
-        data: { token, expiresAt },
+        data: { token, expiresAt, account },
       } = await authServices.signIn(values);
 
       // Set cookie token for Next server
@@ -87,11 +90,11 @@ const SignInForm = () => {
       authStore.setIsSignedIn(true);
 
       // Set app context
-      // setProfile({
-      //   id: response.data.account.id,
-      //   name: response.data.account.name,
-      //   email: response.data.account.email,
-      // });
+      setProfileStore({
+        id: account.id,
+        name: account.name,
+        email: account.email,
+      });
 
       router.push("/profile");
       router.refresh();
