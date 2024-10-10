@@ -20,6 +20,7 @@ import { handleApiError } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import accountServices from "@/services/account";
+import useProfileStore from "@/stores/profile";
 
 // Form
 const formSchema = z
@@ -42,6 +43,10 @@ const ProfileForm: FC<{ name: string }> = ({ name }) => {
     },
   });
 
+  // Stores
+  // Profile
+  const setProfileStore = useProfileStore((state) => state.set);
+
   // States
   const [isPending, setIsPending] = useState(false);
 
@@ -61,14 +66,9 @@ const ProfileForm: FC<{ name: string }> = ({ name }) => {
       });
 
       // Set app context
-      // setProfile((prev) =>
-      //   prev
-      //     ? {
-      //         ...prev,
-      //         name: values.name,
-      //       }
-      //     : prev
-      // );
+      setProfileStore({
+        name: values.name,
+      });
 
       router.refresh();
     } catch (error) {

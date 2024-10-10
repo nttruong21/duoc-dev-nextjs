@@ -3,7 +3,6 @@ import Link from "next/link";
 
 // Internal
 import AuthSection from "./auth-section";
-import { logging } from "@/lib/utils";
 
 // Component
 const Header = () => {

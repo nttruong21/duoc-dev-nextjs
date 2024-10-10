@@ -21,7 +21,7 @@ import { ConfirmDeleteProductButton } from ".";
 
 // Component
 const ProductCard: FC<{ product: Product }> = ({ product }) => {
-  const cookieToken = cookies().get("token");
+  const isAuthenticated = cookies().has("token");
 
   // Template
   // Template
@@ -45,7 +45,7 @@ const ProductCard: FC<{ product: Product }> = ({ product }) => {
       </CardContent>
 
       <CardFooter className="flex justify-end items-center gap-2">
-        {cookieToken ? (
+        {isAuthenticated ? (
           <>
             <Button asChild variant="outline">
               <Link href={`/products/update/${product.id}`}>Update</Link>
